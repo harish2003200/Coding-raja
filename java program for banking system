@@ -1,0 +1,255 @@
+import java.util.ArrayList;
+
+import java.util.HashMap;
+
+import java.util.List;
+
+import java.util.Map;
+
+
+class Account {
+
+    private String accountNumber;
+
+    private String accountType;
+
+    private double balance;
+
+    private List<String> transactionHistory;
+
+
+    public Account(String accountNumber, String accountType) {
+
+        this.accountNumber = accountNumber;
+
+        this.accountType = accountType;
+
+        this.balance = 0.0;
+
+        this.transactionHistory = new ArrayList<>();
+
+    }
+
+
+    public String getAccountNumber() {
+
+        return accountNumber;
+
+    }
+
+
+    public String getAccountType() {
+
+        return accountType;
+
+    }
+
+
+    public double getBalance() {
+
+        return balance;
+
+    }
+
+
+    public List<String> getTransactionHistory() {
+
+        return transactionHistory;
+
+    }
+
+
+    public void deposit(double amount) {
+
+        balance += amount;
+
+        transactionHistory.add("Deposit: +" + amount);
+
+    }
+
+
+    public boolean withdraw(double amount) {
+
+        if (balance >= amount) {
+
+            balance -= amount;
+
+            transactionHistory.add("Withdrawal: -" + amount);
+
+            return true;
+
+        } else {
+
+            return false; // Insufficient funds
+
+        }
+
+    }
+
+
+    public void transfer(Account recipientAccount, double amount) {
+
+        if (withdraw(amount)) {
+
+            recipientAccount.deposit(amount);
+
+            transactionHistory.add("Transfer to " + recipientAccount.getAccountNumber() + ": -" + amount);
+
+        } else {
+
+            transactionHistory.add("Failed Transfer to " + recipientAccount.getAccountNumber() + ": Insufficient Funds");
+
+        }
+
+    }
+
+}
+
+
+class User {
+
+    private String username;
+
+    private String password;
+
+    private Map<String, Account> accounts;
+
+
+    public User(String username, String password) {
+
+        this.username = username;
+
+        this.password = password;
+
+        this.accounts = new HashMap<>();
+
+    }
+
+
+    public String getUsername() {
+
+        return username;
+
+    }
+
+
+    public boolean authenticate(String password) {
+
+        return this.password.equals(password);
+
+    }
+
+
+    public void addAccount(String accountNumber, String accountType) {
+
+        Account account = new Account(accountNumber, accountType);
+
+        accounts.put(accountNumber, account);
+
+    }
+
+
+    public Account getAccount(String accountNumber) {
+
+        return accounts.get(accountNumber);
+
+    }
+
+}
+
+
+class BankingSystem {
+
+    private Map<String, User> users;
+
+
+    public BankingSystem() {
+
+        this.users = new HashMap<>();
+
+    }
+
+
+    public void registerUser(String username, String password) {
+
+        User user = new User(username, password);
+
+        users.put(username, user);
+
+    }
+
+
+    public User login(String username, String password) {
+
+        User user = users.get(username);
+
+        if (user != null && user.authenticate(password)) {
+
+            return user;
+
+        } else {
+
+            return null; // Invalid credentials
+
+        }
+
+    }
+
+}
+
+
+public class OnlineBankingSystem {
+
+    public static void main(String[] args) {
+
+        BankingSystem bankingSystem = new BankingSystem();
+
+
+        // Register users
+
+        bankingSystem.registerUser("user1", "password1");
+
+        bankingSystem.registerUser("user2", "password2");
+
+
+        // Login
+
+        User user1 = bankingSystem.login("user1", "password1");
+
+        User user2 = bankingSystem.login("user2", "password2");
+
+
+        // Create accounts
+
+        user1.addAccount("123456789", "Savings");
+
+        user2.addAccount("987654321", "Checking");
+
+
+        // Perform transactions
+
+        user1.getAccount("123456789").deposit(1000);
+
+        user1.getAccount("123456789").withdraw(500);
+
+        user2.getAccount("987654321").deposit(200);
+
+
+        // Transfer funds
+
+        user1.getAccount("123456789").transfer(user2.getAccount("987654321"), 200);
+
+
+        // View balances and transaction history
+
+        System.out.println("User1 Account Balance: " + user1.getAccount("123456789").getBalance());
+
+        System.out.println("User1 Transaction History: " + user1.getAccount("123456789").getTransactionHistory());
+
+        System.out.println("User2 Account Balance: " + user2.getAccount("987654321").getBalance());
+
+        System.out.println("User2 Transaction History: " + user2.getAccount("987654321").getTransactionHistory());
+
+    }
+
+}
