@@ -1,0 +1,165 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+class Book {
+    private String title;
+    private String author;
+    private String genre;
+    private boolean available;
+
+    public Book(String title, String author, String genre) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+        this.available = true;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+}
+
+class Patron {
+    private String name;
+    private String contactInfo;
+    private List<Book> borrowedBooks;
+
+    public Patron(String name, String contactInfo) {
+        this.name = name;
+        this.contactInfo = contactInfo;
+        this.borrowedBooks = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public List<Book> getBorrowedBooks() {
+        return borrowedBooks;
+    }
+
+    public void borrowBook(Book book) {
+        borrowedBooks.add(book);
+        book.setAvailable(false);
+    }
+
+    public void returnBook(Book book) {
+        borrowedBooks.remove(book);
+        book.setAvailable(true);
+    }
+}
+
+class Library {
+    private Map<String, Book> books;
+    private Map<String, Patron> patrons;
+
+    public Library() {
+        this.books = new HashMap<>();
+        this.patrons = new HashMap<>();
+    }
+
+    public void addBook(String title, String author, String genre) {
+        Book book = new Book(title, author, genre);
+        books.put(title, book);
+    }
+
+    public void addPatron(String name, String contactInfo) {
+        Patron patron = new Patron(name, contactInfo);
+        patrons.put(name, patron);
+    }
+
+    public void borrowBook(String patronName, String bookTitle) {
+        Patron patron = patrons.get(patronName);
+        Book book = books.get(bookTitle);
+        if (patron != null && book != null && book.isAvailable()) {
+            patron.borrowBook(book);
+            System.out.println(patronName + " has borrowed " + bookTitle);
+        } else {
+            System.out.println("Book not available or patron not found.");
+        }
+    }
+
+    public void returnBook(String patronName, String bookTitle) {
+        Patron patron = patrons.get(patronName);
+        Book book = books.get(bookTitle);
+        if (patron != null && book != null && !book.isAvailable()) {
+            patron.returnBook(book);
+            System.out.println(patronName + " has returned " + bookTitle);
+        } else {
+            System.out.println("Book not borrowed or patron not found.");
+        }
+    }
+
+    public void printBookAvailability() {
+        System.out.println("Books Available:");
+        for (Book book : books.values()) {
+            if (book.isAvailable()) {
+                System.out.println(book.getTitle());
+            }
+        }
+    }
+
+    public void printPatronBorrowedBooks(String patronName) {
+        Patron patron = patrons.get(patronName);
+        if (patron != null) {
+            List<Book> borrowedBooks = patron.getBorrowedBooks();
+            System.out.println(patronName + "'s Borrowed Books:");
+            for (Book book : borrowedBooks) {
+                System.out.println(book.getTitle());
+            }
+        } else {
+            System.out.println("Patron not found.");
+        }
+    }
+}
+
+public class LibraryManagementSystem {
+    public static void main(String[] args) {
+        Library library = new Library();
+
+        // Adding books
+        library.addBook("The Great Gatsby", "F. Scott Fitzgerald", "Fiction");
+        library.addBook("To Kill a Mockingbird", "Harper Lee", "Fiction");
+        library.addBook("1984", "George Orwell", "Science Fiction");
+
+        // Adding patrons
+        library.addPatron("Alice", "alice@example.com");
+        library.addPatron("Bob", "bob@example.com");
+
+        // Borrowing books
+        library.borrowBook("Alice", "The Great Gatsby");
+        library.borrowBook("Bob", "To Kill a Mockingbird");
+        library.borrowBook("Bob", "1984"); // This book is already borrowed
+
+        // Returning books
+        library.returnBook("Alice", "The Great Gatsby");
+
+        // Printing book availability
+        library.printBookAvailability();
+
+        // Printing patron's borrowed books
+        library.printPatronBorrowedBooks("Bob");
+    }
+}
